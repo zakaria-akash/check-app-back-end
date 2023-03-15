@@ -27,4 +27,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(5000);
+app.listen(5000, () => {
+  console.log("Server is connected on PORT: 5000");
+});

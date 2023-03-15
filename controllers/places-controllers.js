@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const HttpError = require("../models/http-error");
 
-const Sample_Places = [
+let Sample_Places = [
   {
     id: "p1",
     title: "Empire State Building",
@@ -92,6 +92,33 @@ const createPlace = (req, res, next) => {
   res.status(201).json({ place: createdPlace });
 };
 
+const updatePlace = (req, res, nex) => {
+  const { title, description } = req.body;
+
+  const placeId = req.params.pid;
+
+  const updatedPlace = {
+    ...Sample_Places.find((place) => place.id === placeId),
+  };
+  const placeIndex = Sample_Places.findIndex((place) => place.id === placeId);
+  updatedPlace.title = title;
+  updatedPlace.description = description;
+
+  Sample_Places[placeIndex] = updatedPlace;
+
+  res.status(200).json({ place: updatedPlace });
+};
+
+const deletePlace = (req, res, nex) => {
+  const placeId = req.params.pid;
+
+  Sample_Places = Sample_Places.filter((place) => place.id !== placeId);
+
+  res.status(200).json({ message: "Selected place has been deleted..." });
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
 exports.createPlace = createPlace;
+exports.updatePlace = updatePlace;
+exports.deletePlace = deletePlace;
