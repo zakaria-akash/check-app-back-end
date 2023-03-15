@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 
 let Sample_Places = [
@@ -53,7 +54,7 @@ const getPlaceById = (req, res, next) => {
   const place = Sample_Places.find((place) => place.id === placeId);
 
   if (!place) {
-    throw new HttpError("Could not find a place for given id.");
+    throw new HttpError("There is no place found for that given Id", 404);
   }
 
   res.json({ place });
@@ -66,7 +67,7 @@ const getPlacesByUserId = (req, res, next) => {
 
   if (!places || places.length === 0) {
     const error = new HttpError(
-      "Could not find any place for given user id.",
+      "There is no place found for that given Id",
       404
     );
     return next(error);
@@ -76,6 +77,15 @@ const getPlacesByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    throw new HttpError(
+      "Invalid input data, please check your given data!",
+      422
+    );
+  }
+
   const { title, description, coordinates, address, creator } = req.body;
 
   const createdPlace = {
@@ -93,6 +103,14 @@ const createPlace = (req, res, next) => {
 };
 
 const updatePlace = (req, res, nex) => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    throw new HttpError(
+      "Invalid input data, please check your given data!",
+      422
+    );
+  }
   const { title, description } = req.body;
 
   const placeId = req.params.pid;
@@ -111,6 +129,10 @@ const updatePlace = (req, res, nex) => {
 
 const deletePlace = (req, res, nex) => {
   const placeId = req.params.pid;
+
+  if (!Sample_Places.find((place) => place.id === placeId)) {
+    throw new HttpError("There is no place found for that given Id", 404);
+  }
 
   Sample_Places = Sample_Places.filter((place) => place.id !== placeId);
 
