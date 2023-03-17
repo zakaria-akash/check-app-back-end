@@ -49,34 +49,60 @@ let Sample_Places = [
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   console.log("Get request in places-router!");
 
   const placeId = req.params.pid;
 
-  const place = Sample_Places.find((place) => place.id === placeId);
+  let extractedPlace;
 
-  if (!place) {
-    throw new HttpError("There is no place found for that given Id", 404);
-  }
-
-  res.json({ place });
-};
-
-const getPlacesByUserId = (req, res, next) => {
-  const userId = req.params.uid;
-
-  const places = Sample_Places.filter((place) => place.creator === userId);
-
-  if (!places || places.length === 0) {
+  try {
+    extractedPlace = await Place.findById(placeId);
+  } catch (err) {
     const error = new HttpError(
-      "There is no place found for that given Id",
-      404
+      "Something went wrong, selected place cannot be loaded",
+      500
     );
+
     return next(error);
   }
 
-  res.json({ places });
+  if (!extractedPlace) {
+    const error = new HttpError("No place exists for that given Id", 404);
+
+    return next(error);
+  }
+
+  res.json({ place: extractedPlace.toObject({ getters: true }) });
+};
+
+const getPlacesByUserId = async (req, res, next) => {
+  const userId = req.params.uid;
+
+  let extractedPlace;
+
+  try {
+    extractedPlace = await Place.find({ creator: userId });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, fetching places failed for the given user Id",
+      500
+    );
+
+    console.log(err);
+
+    return next(error);
+  }
+
+  if (!extractedPlace) {
+    const error = new HttpError("No place exists for that given Id", 404);
+
+    return next(error);
+  }
+
+  res.json({
+    place: extractedPlace.map((place) => place.toObject({ getters: true })),
+  });
 };
 
 const createPlace = async (req, res, next) => {
@@ -122,7 +148,7 @@ const createPlace = async (req, res, next) => {
   res.status(201).json({ place: createdPlace });
 };
 
-const updatePlace = (req, res, nex) => {
+const updatePlace = async (req, res, next) => {
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
@@ -135,26 +161,88 @@ const updatePlace = (req, res, nex) => {
 
   const placeId = req.params.pid;
 
-  const updatedPlace = {
-    ...Sample_Places.find((place) => place.id === placeId),
-  };
-  const placeIndex = Sample_Places.findIndex((place) => place.id === placeId);
-  updatedPlace.title = title;
-  updatedPlace.description = description;
+  // const updatedPlace = {
+  //   ...Sample_Places.find((place) => place.id === placeId),
+  // };
+  // const placeIndex = Sample_Places.findIndex((place) => place.id === placeId);
 
-  Sample_Places[placeIndex] = updatedPlace;
+  let placeToUpdate;
 
-  res.status(200).json({ place: updatedPlace });
-};
+  try {
+    placeToUpdate = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, selected place cannot be updated",
+      500
+    );
 
-const deletePlace = (req, res, nex) => {
-  const placeId = req.params.pid;
-
-  if (!Sample_Places.find((place) => place.id === placeId)) {
-    throw new HttpError("There is no place found for that given Id", 404);
+    return next(error);
   }
 
-  Sample_Places = Sample_Places.filter((place) => place.id !== placeId);
+  if (!placeToUpdate) {
+    const error = new HttpError("No place exists for that given Id", 404);
+
+    return next(error);
+  }
+
+  placeToUpdate.title = title;
+  placeToUpdate.description = description;
+
+  // Sample_Places[placeIndex] = updatedPlace;
+
+  try {
+    await placeToUpdate.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Updating the selected place failed, please try again",
+      500
+    );
+    console.log(err);
+    return next(error);
+  }
+
+  res.status(200).json({ place: placeToUpdate.toObject({ getters: true }) });
+};
+
+const deletePlace = async (req, res, next) => {
+  const placeId = req.params.pid;
+
+  // let placeToDelete;
+
+  try {
+    // placeToDelete = await Place.findById(placeId);
+    await Place.deleteOne({ _id: placeId });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, selected place cannot be deleted",
+      500
+    );
+
+    return next(error);
+  }
+
+  // if (!placeToDelete) {
+  //   const error = new HttpError("Selected place does not exist", 404);
+
+  //   return next(error);
+  // }
+
+  // try {
+  //   await placeToDelete.remove();
+  // } catch (err) {
+  //   const error = new HttpError(
+  //     "Removing the selected place failed, please try again later",
+  //     500
+  //   );
+  //   console.log(err);
+  //   return next(error);
+  // }
+
+  // if (!Sample_Places.find((place) => place.id === placeId)) {
+  //   throw new HttpError("There is no place found for that given Id", 404);
+  // }
+
+  // Sample_Places = Sample_Places.filter((place) => place.id !== placeId);
 
   res.status(200).json({ message: "Selected place has been deleted..." });
 };
