@@ -1,6 +1,8 @@
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
+
 const HttpError = require("../models/http-error");
+const Place = require("../models/place");
 // const getCoordsForAddress = require("../util/location");
 
 let Sample_Places = [
@@ -95,16 +97,27 @@ const createPlace = async (req, res, next) => {
   //   return next(error);
   // }
 
-  const createdPlace = {
-    id: uuidv4(),
+  const createdPlace = new Place({
     title,
     description,
     location,
     address,
+    imageUrl: "/images/sample_image.jpg",
     creator,
-  };
+  });
 
-  Sample_Places.push(createdPlace);
+  // Sample_Places.push(createdPlace);
+
+  try {
+    await createdPlace.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating a new place failed, please try again",
+      500
+    );
+    console.log(err);
+    return next(error);
+  }
 
   res.status(201).json({ place: createdPlace });
 };

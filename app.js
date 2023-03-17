@@ -1,5 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+
+require("dotenv").config();
 
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -29,6 +32,13 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(5000, () => {
-  console.log("Server is connected on PORT: 5000");
-});
+mongoose
+  .connect(
+    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@starting-cluster-01.5mukk.mongodb.net/check_in_places?retryWrites=true&w=majority`
+  )
+  .then(() =>
+    app.listen(5000, () => {
+      console.log("Server is connected on PORT: 5000");
+    })
+  )
+  .catch((error) => console.log(error));
