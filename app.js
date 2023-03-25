@@ -34,7 +34,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@starting-cluster-01.5mukk.mongodb.net/check_in_places?retryWrites=true&w=majority`
+    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@starting-cluster-01.5mukk.mongodb.net/check_in_backend?retryWrites=true&w=majority`
   )
   .then(() =>
     app.listen(5000, () => {
