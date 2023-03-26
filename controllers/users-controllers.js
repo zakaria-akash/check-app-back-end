@@ -2,20 +2,20 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 
-const Sample_Users = [
-  {
-    id: "u1",
-    name: "Zakaria Ibrahim",
-    email: "zakaria.93@yahoo.com",
-    password: "01319321363",
-  },
-  {
-    id: "u2",
-    name: "Jamal Hossain",
-    email: "jamal_h@abc.com",
-    password: "01914655657",
-  },
-];
+// const Sample_Users = [
+//   {
+//     id: "u1",
+//     name: "Zakaria Ibrahim",
+//     email: "zakaria.93@yahoo.com",
+//     password: "01319321363",
+//   },
+//   {
+//     id: "u2",
+//     name: "Jamal Hossain",
+//     email: "jamal_h@abc.com",
+//     password: "01914655657",
+//   },
+// ];
 
 const getUsers = async (req, res, next) => {
   let currentUsers;
