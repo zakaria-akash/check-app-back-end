@@ -109,7 +109,10 @@ const logIn = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ message: "Successfully logged in ..." });
+  res.json({
+    message: "Successfully logged in ...",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 exports.getUsers = getUsers;

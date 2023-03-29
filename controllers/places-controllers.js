@@ -121,7 +121,7 @@ const createPlace = async (req, res, next) => {
     );
   }
 
-  const { title, description, location, address, creator } = req.body;
+  const { title, description, address, lng, lat, creator } = req.body;
 
   // let coordinates;
   // try {
@@ -133,8 +133,9 @@ const createPlace = async (req, res, next) => {
   const createdPlace = new Place({
     title,
     description,
-    location,
     address,
+    lng,
+    lat,
     image: "/images/sample_image.jpg",
     creator,
   });

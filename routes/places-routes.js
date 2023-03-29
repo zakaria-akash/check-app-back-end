@@ -16,8 +16,8 @@ router.post(
     check("title").not().isEmpty(),
     check("description").isLength({ min: 5 }),
     check("address").not().isEmpty(),
-    check("location.lat").isFloat(),
-    check("location.lng").isFloat(),
+    check("lng").isNumeric(),
+    check("lat").isNumeric(),
   ],
   placesControllers.createPlace
 );
