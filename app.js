@@ -49,7 +49,13 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@starting-cluster-01.5mukk.mongodb.net/check_in_backend?retryWrites=true&w=majority`
+    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@starting-cluster-01.5mukk.mongodb.net/check_in_backend?retryWrites=true&w=majority`,
+    {
+      useNewUrlParser: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+    }
   )
   .then(() =>
     app.listen(5000, () => {
